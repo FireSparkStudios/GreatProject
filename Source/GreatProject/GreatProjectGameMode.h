@@ -14,6 +14,3 @@ class AGreatProjectGameMode : public AGameModeBase
 public:
 	AGreatProjectGameMode();
 };
-
-
-
