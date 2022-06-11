@@ -40,6 +40,32 @@ protected:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
+	// controls what will happen when sprint start.
+	void SprintStart();
+
+	// controls what will happen when sprint stop.
+	void SprintStop();
+
+	void Jump() override;
+
+	void StopJumping() override;
+
+public:
+
+	class UUVitalityComponent* VitalityComponent;
+
+	// How much stamina drained while running.
+	float StaminaDrain;
+
+	// How much stamina regenerate while character can regenerate.
+	float StaminaRegen;
+
+	// Control character is able to sprint.
+	bool bCanSprint;
+
+	// Is character sprinting?
+	bool bIsSprinting;
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetSpringArmComponent() const { return SpringArm; }

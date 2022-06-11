@@ -3,6 +3,7 @@
 
 #include "ACharacterClassBase.h"
 
+#include "UVitalityComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -34,7 +35,13 @@ AACharacterClassBase::AACharacterClassBase()
 	ThirdPersonCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	ThirdPersonCamera->bUsePawnControlRotation = false;
 
+	VitalityComponent = CreateDefaultSubobject<UUVitalityComponent>(TEXT("Vitality Component"));
 
+	bCanSprint = true;
+	bIsSprinting = false;
+
+	StaminaDrain = 1;
+	StaminaRegen = 2;
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +55,15 @@ void AACharacterClassBase::BeginPlay()
 void AACharacterClassBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, .0f, FColor::Cyan, FString::Printf(TEXT("Stamina: %s"), *FString::SanitizeFloat(VitalityComponent->Stamina)));
+	}
 
+	if (!bIsSprinting && GetCharacterMovement()->IsMovingOnGround())
+	{
+		VitalityComponent->RegenerateStamina(StaminaRegen * GetWorld()->DeltaTimeSeconds);
+	}
 }
 
 // Called to bind functionality to input
@@ -59,6 +74,9 @@ void AACharacterClassBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AACharacterClassBase::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AACharacterClassBase::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AACharacterClassBase::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AACharacterClassBase::SprintStop);
 
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AACharacterClassBase::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &AACharacterClassBase::MoveRight);
@@ -79,6 +97,14 @@ void AACharacterClassBase::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+
+		// TODO make function fot stamina usage
+
+		if (bIsSprinting)
+		{
+			VitalityComponent->DrainStamina(StaminaDrain*GetWorld()->DeltaTimeSeconds);
+		}
+
 	}
 }
 
@@ -95,5 +121,37 @@ void AACharacterClassBase::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AACharacterClassBase::SprintStart()
+{
+	// TODO get back to normal walk speed when stamina is over!!
+	if (bCanSprint)
+	{
+		bIsSprinting = true;
+		GetCharacterMovement()->MaxWalkSpeed = 1200;
+	}
+}
+
+void AACharacterClassBase::SprintStop()
+{
+	bIsSprinting = false;
+	GetCharacterMovement()->MaxWalkSpeed = 600;
+}
+
+void AACharacterClassBase::Jump()
+{
+	Super::Jump();
+
+	if (GetCharacterMovement()->IsMovingOnGround())
+	{
+		VitalityComponent->DrainStamina(1);
+	}
+}
+
+void AACharacterClassBase::StopJumping()
+{
+	Super::StopJumping();
+	
 }
 
