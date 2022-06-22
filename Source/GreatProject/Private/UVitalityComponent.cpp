@@ -13,7 +13,7 @@ UUVitalityComponent::UUVitalityComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	DefaultStamina = 10;
+	DefaultStamina = 10.f;
 
 }
 

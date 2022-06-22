@@ -50,9 +50,13 @@ protected:
 
 	void StopJumping() override;
 
+	bool deneme;
+
 public:
 
 	class UUVitalityComponent* VitalityComponent;
+
+	float* Stamina;
 
 	// How much stamina drained while running.
 	float StaminaDrain;
@@ -65,6 +69,8 @@ public:
 
 	// Is character sprinting?
 	bool bIsSprinting;
+
+	float StaminaLimit;
 
 public:
 	/** Returns CameraBoom subobject **/
