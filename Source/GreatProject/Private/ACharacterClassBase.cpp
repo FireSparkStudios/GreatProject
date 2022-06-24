@@ -37,6 +37,11 @@ AACharacterClassBase::AACharacterClassBase()
 
 	VitalityComponent = CreateDefaultSubobject<UUVitalityComponent>(TEXT("Vitality Component"));
 
+    if (VitalityComponent)
+    {
+		Stamina = &VitalityComponent->Stamina;
+    }
+
 	bCanSprint = true;
 	bIsSprinting = false;
 
@@ -48,9 +53,6 @@ AACharacterClassBase::AACharacterClassBase()
 void AACharacterClassBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Stamina = &VitalityComponent->Stamina;
-	StaminaLimit = *Stamina * 0.50;
 	
 }
 
@@ -59,7 +61,6 @@ void AACharacterClassBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	deneme = bIsSprinting && bCanSprint && *Stamina > VitalityComponent->Stamina * 0.2f;
 
 	if (GEngine)
 	{
@@ -104,17 +105,7 @@ void AACharacterClassBase::MoveForward(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
 
-		if (*Stamina <= 0)
-		{
-			SprintStop();
-		}
-
-		// TODO make function for stamina usage
-
-		if (bIsSprinting && bCanSprint)
-		{
-			VitalityComponent->DrainStamina(StaminaDrain*GetWorld()->DeltaTimeSeconds);
-		}
+		Sprint();
 
 	}
 }
@@ -137,7 +128,7 @@ void AACharacterClassBase::MoveRight(float Value)
 void AACharacterClassBase::SprintStart()
 {
 	// TODO get back to normal walk speed when stamina is over!!
-	if (bCanSprint && *Stamina > StaminaLimit)
+	if (bCanSprint && *Stamina > VitalityComponent->RunningLimit)
 	{
 		bIsSprinting = true;
 		GetCharacterMovement()->MaxWalkSpeed = 1200;
@@ -167,5 +158,19 @@ void AACharacterClassBase::StopJumping()
 {
 	Super::StopJumping();
 	
+}
+
+void AACharacterClassBase::Sprint()
+{
+	if (*Stamina <= 0)
+	{
+		SprintStop();
+		return;
+	}
+
+	if (bIsSprinting && bCanSprint)
+	{
+		VitalityComponent->DrainStamina(StaminaDrain * GetWorld()->DeltaTimeSeconds);
+	}
 }
 

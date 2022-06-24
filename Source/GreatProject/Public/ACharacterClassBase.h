@@ -49,8 +49,7 @@ protected:
 	void Jump() override;
 
 	void StopJumping() override;
-
-	bool deneme;
+	
 
 public:
 
@@ -70,7 +69,8 @@ public:
 	// Is character sprinting?
 	bool bIsSprinting;
 
-	float StaminaLimit;
+	// Controls sprint conditions
+	void Sprint();
 
 public:
 	/** Returns CameraBoom subobject **/

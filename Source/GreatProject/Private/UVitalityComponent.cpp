@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+
 // Sets default values for this component's properties
 UUVitalityComponent::UUVitalityComponent()
 {
@@ -13,7 +14,12 @@ UUVitalityComponent::UUVitalityComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+	// Set health properties
+	DefaultHealth = 100.f;
+
+	// Set stamina properties
 	DefaultStamina = 10.f;
+	RunningLimitPercentage = .2f;
 
 }
 
@@ -22,9 +28,16 @@ UUVitalityComponent::UUVitalityComponent()
 void UUVitalityComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	MyOwner = GetOwner();
+	if (MyOwner)
+	{
+		MyOwner->OnTakeAnyDamage.AddDynamic(this, &UUVitalityComponent::HandleTakeAnyDamage);
+	}
+
 	Stamina = DefaultStamina;
-	
+	RunningLimit = DefaultStamina * RunningLimitPercentage;
+	Health = DefaultHealth;
 }
 
 
@@ -46,4 +59,22 @@ void UUVitalityComponent::DrainStamina(float DrainAmount)
 	Stamina = FMath::Clamp(Stamina - DrainAmount, .0f, DefaultStamina);
 }
 
+
+void UUVitalityComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (Damage < 0.f)
+	{
+		// TODO Call healing funccc.
+	}
+
+	if (Damage == .0f)
+	{
+		return;
+	}
+
+	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
+	UE_LOG(LogTemp, Log, TEXT("Health changed to : %s"), *FString::SanitizeFloat(Health));
+
+	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
+}
 
