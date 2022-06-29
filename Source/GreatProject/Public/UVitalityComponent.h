@@ -34,8 +34,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	float DefaultHealth;
+
+	float Health;
+
 	// characters max stamina
-	UPROPERTY(EditDefaultsOnly, Category = "Vitality|Stamina")
+	UPROPERTY(EditAnywhere, Category = "Vitality|Stamina")
 	float DefaultStamina;
 
 	// characters current stamina
@@ -44,16 +48,29 @@ public:
 	// Limit to able to run againg
 	float RunningLimit;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Vitality|Stamina")
+	UPROPERTY(EditAnywhere, Category = "Vitality|Stamina")
 	float RunningLimitPercentage;
 
-	void RegenerateStamina(float RegenerationAmount);
 
-	void DrainStamina(float DrainAmount);
+	// Call this when you want to regenerate stamina
+	void AddStamina(float Amount);
 
-	float DefaultHealth;
+	// Max fullness
+	float DefaultFullness;
 
-	float Health;
+	// Current fullness
+	float Fullness;
+
+	// How rare fullness decrease (seconds)
+	float HungerRate;
+
+	// How much fullness decrease by HungerRate
+	float HungerAmount;
+
+	UFUNCTION()
+	void FullnessDecreaseByTime();
+
+	FTimerHandle FullnessTimerHandle;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnHealthChangedSignature OnHealthChanged;

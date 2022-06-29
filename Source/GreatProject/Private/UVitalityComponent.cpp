@@ -21,6 +21,10 @@ UUVitalityComponent::UUVitalityComponent()
 	DefaultStamina = 10.f;
 	RunningLimitPercentage = .2f;
 
+	// Set fullness properties
+	DefaultFullness = 100.f;
+	HungerRate = 60;
+	HungerAmount = 1;
 }
 
 
@@ -35,9 +39,15 @@ void UUVitalityComponent::BeginPlay()
 		MyOwner->OnTakeAnyDamage.AddDynamic(this, &UUVitalityComponent::HandleTakeAnyDamage);
 	}
 
+	Health = DefaultHealth;
+
 	Stamina = DefaultStamina;
 	RunningLimit = DefaultStamina * RunningLimitPercentage;
-	Health = DefaultHealth;
+
+	Fullness = DefaultFullness;
+
+	GetWorld()->GetTimerManager().SetTimer(FullnessTimerHandle, this, &UUVitalityComponent::FullnessDecreaseByTime, HungerRate, true, HungerRate);
+
 }
 
 
@@ -48,17 +58,6 @@ void UUVitalityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	// ...
 }
-
-void UUVitalityComponent::RegenerateStamina(float RegenerationAmount)
-{
-	Stamina = FMath::Min(DefaultStamina, Stamina + RegenerationAmount);
-}
-
-void UUVitalityComponent::DrainStamina(float DrainAmount)
-{
-	Stamina = FMath::Clamp(Stamina - DrainAmount, .0f, DefaultStamina);
-}
-
 
 void UUVitalityComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
@@ -77,4 +76,18 @@ void UUVitalityComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 }
+
+void UUVitalityComponent::AddStamina(float Amount)
+{
+	Stamina = FMath::Clamp(Stamina + Amount, .0f, DefaultStamina);
+}
+
+void UUVitalityComponent::FullnessDecreaseByTime()
+{
+	Fullness = FMath::Clamp(Fullness - HungerAmount, 0, DefaultHealth);
+
+	UE_LOG(LogTemp, Error, TEXT("Fullness changed to : %s"), *FString::SanitizeFloat(Fullness));
+}
+
+
 

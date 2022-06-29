@@ -69,7 +69,7 @@ void AACharacterClassBase::Tick(float DeltaTime)
 
 	if (!bIsSprinting && GetCharacterMovement()->IsMovingOnGround())
 	{
-		VitalityComponent->RegenerateStamina(StaminaRegen * GetWorld()->DeltaTimeSeconds);
+		VitalityComponent->AddStamina(StaminaRegen * GetWorld()->DeltaTimeSeconds);
 	}
 }
 
@@ -150,7 +150,7 @@ void AACharacterClassBase::Jump()
 
 	if (GetCharacterMovement()->IsMovingOnGround())
 	{
-		VitalityComponent->DrainStamina(1);
+		VitalityComponent->AddStamina(-1);
 	}
 }
 
@@ -170,7 +170,7 @@ void AACharacterClassBase::Sprint()
 
 	if (bIsSprinting && bCanSprint)
 	{
-		VitalityComponent->DrainStamina(StaminaDrain * GetWorld()->DeltaTimeSeconds);
+		VitalityComponent->AddStamina(-StaminaDrain * GetWorld()->DeltaTimeSeconds);
 	}
 }
 
