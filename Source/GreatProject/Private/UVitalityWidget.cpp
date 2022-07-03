@@ -3,10 +3,3 @@
 
 #include "UVitalityWidget.h"
 
-UUVitalityWidget::UUVitalityWidget(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-	
-
-}
-
