@@ -3,8 +3,10 @@
 
 #include "UVitalityComponent.h"
 
+#include "UVitalityWidget.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GreatProject/Public/ACharacterClassBase.h"
 
 
 // Sets default values for this component's properties
@@ -33,7 +35,7 @@ void UUVitalityComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MyOwner = GetOwner();
+	MyOwner = Cast<AACharacterClassBase>(GetOwner());
 	if (MyOwner)
 	{
 		MyOwner->OnTakeAnyDamage.AddDynamic(this, &UUVitalityComponent::HandleTakeAnyDamage);
@@ -61,14 +63,14 @@ void UUVitalityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UUVitalityComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage < 0.f)
-	{
-		// TODO Call healing funccc.
-	}
-
 	if (Damage == .0f)
 	{
 		return;
+	}
+
+	if (Damage < 0.f)
+	{
+		// TODO Call healing funccc.
 	}
 
 	Health = FMath::Clamp(Health - Damage, 0.f, DefaultHealth);
@@ -80,6 +82,7 @@ void UUVitalityComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage
 void UUVitalityComponent::AddStamina(float Amount)
 {
 	Stamina = FMath::Clamp(Stamina + Amount, .0f, DefaultStamina);
+	MyOwner->VitalityHUD->SetStamina(Stamina, DefaultStamina);
 }
 
 void UUVitalityComponent::FullnessDecreaseByTime()
@@ -88,6 +91,4 @@ void UUVitalityComponent::FullnessDecreaseByTime()
 
 	UE_LOG(LogTemp, Error, TEXT("Fullness changed to : %s"), *FString::SanitizeFloat(Fullness));
 }
-
-
 

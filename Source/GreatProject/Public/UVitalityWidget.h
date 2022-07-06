@@ -19,18 +19,21 @@ public:
 	void SetHealth(float CurrentHealth, float MaxHealth);
 
 	/* Update HUD with current stamina. */
-	void Setamina(float CurrentStamina, float MaxStamina);
+	void SetStamina(float CurrentStamina, float MaxStamina);
 
 	/* Update HUD with current fullness. */
 	void SetFullness(float CurrentFullness, float MaxFullness);
 
 	/* Widget to use to display current Health */
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UProgressBar* HealthBar;
 
 	/* Widget to use to display current Stamina */
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UProgressBar* StaminaBar;
 
 	/* Widget to use to display current Health */
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UProgressBar* FullnessBar;
 
 };

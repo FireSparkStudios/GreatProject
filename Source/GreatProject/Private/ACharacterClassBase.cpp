@@ -3,11 +3,13 @@
 
 #include "ACharacterClassBase.h"
 
-#include "UVitalityComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GreatProject/Public/UVitalityComponent.h"
+#include "GreatProject/Public/UVitalityWidget.h"
 
 // Sets default values
 AACharacterClassBase::AACharacterClassBase()
@@ -34,7 +36,13 @@ AACharacterClassBase::AACharacterClassBase()
 	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
 	ThirdPersonCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	ThirdPersonCamera->bUsePawnControlRotation = false;
+	
+	// HUD Setup
 
+	VitalityHUDClass = nullptr;
+	VitalityHUD = nullptr;
+
+	// Vitality Component Setup
 	VitalityComponent = CreateDefaultSubobject<UUVitalityComponent>(TEXT("Vitality Component"));
 
     if (VitalityComponent)
@@ -47,13 +55,31 @@ AACharacterClassBase::AACharacterClassBase()
 
 	StaminaDrain = 1;
 	StaminaRegen = 2;
+
 }
 
 // Called when the game starts or when spawned
 void AACharacterClassBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (IsLocallyControlled() && VitalityHUDClass)
+	{
+		check(GetLocalViewingPlayerController());
+		VitalityHUD = CreateWidget<UUVitalityWidget>(GetLocalViewingPlayerController(), VitalityHUDClass);
+		check(VitalityHUD);
+		VitalityHUD->AddToPlayerScreen();
+		UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	}
+
+	if (VitalityHUD)
+	{
+			VitalityHUD->SetHealth(VitalityComponent->Health, VitalityComponent->DefaultHealth);
+			VitalityHUD->SetStamina(VitalityComponent->Stamina, VitalityComponent->DefaultStamina);
+			VitalityHUD->SetFullness(VitalityComponent->Fullness, VitalityComponent->DefaultFullness);
+	}
+
+	VitalityComponent->OnHealthChanged.AddDynamic(this, &AACharacterClassBase::HandleHealthChanged);
 }
 
 // Called every frame
@@ -158,6 +184,13 @@ void AACharacterClassBase::StopJumping()
 {
 	Super::StopJumping();
 	
+}
+
+void AACharacterClassBase::HandleHealthChanged(UUVitalityComponent* HealthComp, float Health, float HealthDelta,
+	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+
+	// Controls what happens when health changed
 }
 
 void AACharacterClassBase::Sprint()

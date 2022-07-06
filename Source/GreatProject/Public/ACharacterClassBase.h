@@ -6,10 +6,17 @@
 #include "GameFramework/Character.h"
 #include "ACharacterClassBase.generated.h"
 
+class UUVitalityWidget;
+class UUVitalityComponent;
+
 UCLASS()
 class GREATPROJECT_API AACharacterClassBase : public ACharacter
 {
 	GENERATED_BODY()
+
+	/*
+	 * Components
+	 */
 
 	// Spring arm for third person camera.
 	class USpringArmComponent* SpringArm;
@@ -29,27 +36,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-protected:
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	/** Called for forwards/backward input */
-	void MoveForward(float Value);
-
-	/** Called for side to side input */
-	void MoveRight(float Value);
-
-	// controls what will happen when sprint start.
-	void SprintStart();
-
-	// controls what will happen when sprint stop.
-	void SprintStop();
-
-	void Jump() override;
-
-	void StopJumping() override;
-	
+	/*
+	 * Variables
+	 */
 
 public:
 
@@ -71,6 +60,51 @@ public:
 
 	// Controls sprint conditions
 	void Sprint();
+
+	/*
+	* HUD
+	*/
+public:
+
+	// Widget class to spawn for the heads up display.
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUVitalityWidget> VitalityHUDClass;
+
+	UPROPERTY()
+	UUVitalityWidget* VitalityHUD;
+
+	/*
+	 * Functions
+	 */
+
+protected:
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	/** Called for forwards/backward input */
+	void MoveForward(float Value);
+
+	/** Called for side to side input */
+	void MoveRight(float Value);
+
+	// controls what will happen when sprint start.
+	void SprintStart();
+
+	// controls what will happen when sprint stop.
+	void SprintStop();
+
+	void Jump() override;
+
+	void StopJumping() override;
+
+	UFUNCTION()
+	void HandleHealthChanged(UUVitalityComponent* HealthComp, float Health, float HealthDelta,
+		const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	/*
+	 * Getter Functions
+	 */
 
 public:
 	/** Returns CameraBoom subobject **/

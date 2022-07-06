@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "UVitalityComponent.generated.h"
 
+class AACharacterClassBase;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, UUVitalityComponent*, HealthComp, float, Health,
 											float, HealthDelta, const class UDamageType*, DamageType,
 											class AController*, InstigatedBy, AActor*, DamageCauser);
@@ -24,19 +26,19 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
-	UFUNCTION()
-	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
-
-	AActor* MyOwner;
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/*
+	 * Variables
+	 */
+
 	float DefaultHealth;
 
 	float Health;
+
+	AACharacterClassBase* MyOwner;
 
 	// characters max stamina
 	UPROPERTY(EditAnywhere, Category = "Vitality|Stamina")
@@ -50,7 +52,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Vitality|Stamina")
 	float RunningLimitPercentage;
-
 
 	// Call this when you want to regenerate stamina
 	void AddStamina(float Amount);
@@ -67,10 +68,21 @@ public:
 	// How much fullness decrease by HungerRate
 	float HungerAmount;
 
+	FTimerHandle FullnessTimerHandle;
+
+	/*
+	 * Functions
+	 */
+
+	UFUNCTION()
+	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 	UFUNCTION()
 	void FullnessDecreaseByTime();
 
-	FTimerHandle FullnessTimerHandle;
+	/*
+	 * Signatures
+	 */
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnHealthChangedSignature OnHealthChanged;
