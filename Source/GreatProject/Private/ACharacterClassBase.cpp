@@ -9,7 +9,6 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GreatProject/Public/UVitalityComponent.h"
-#include "GreatProject/Public/UVitalityWidget.h"
 
 // Sets default values
 AACharacterClassBase::AACharacterClassBase()
@@ -37,19 +36,25 @@ AACharacterClassBase::AACharacterClassBase()
 	ThirdPersonCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	ThirdPersonCamera->bUsePawnControlRotation = false;
 	
-	// HUD Setup
 
-	VitalityHUDClass = nullptr;
-	VitalityHUD = nullptr;
 
 	// Vitality Component Setup
 	VitalityComponent = CreateDefaultSubobject<UUVitalityComponent>(TEXT("Vitality Component"));
 
+	// If vitality component works correctly store data on pointers
     if (VitalityComponent)
     {
-		Stamina = &VitalityComponent->Stamina;
+		PDefaultHealth = &VitalityComponent->DefaultHealth;
+		PHealth = &VitalityComponent->Health;
+
+		PDefaultStamina = &VitalityComponent->DefaultStamina;
+		PStamina = &VitalityComponent->Stamina;
+
+		PDefaultFullness = &VitalityComponent->DefaultStamina;
+		PFullness = &VitalityComponent->Fullness;
     }
 
+	// Set characters default physical abilities
 	bCanSprint = true;
 	bIsSprinting = false;
 
@@ -63,23 +68,9 @@ void AACharacterClassBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (IsLocallyControlled() && VitalityHUDClass)
-	{
-		check(GetLocalViewingPlayerController());
-		VitalityHUD = CreateWidget<UUVitalityWidget>(GetLocalViewingPlayerController(), VitalityHUDClass);
-		check(VitalityHUD);
-		VitalityHUD->AddToPlayerScreen();
-		UE_LOG(LogTemp, Warning, TEXT("Hello"));
-	}
-
-	if (VitalityHUD)
-	{
-			VitalityHUD->SetHealth(VitalityComponent->Health, VitalityComponent->DefaultHealth);
-			VitalityHUD->SetStamina(VitalityComponent->Stamina, VitalityComponent->DefaultStamina);
-			VitalityHUD->SetFullness(VitalityComponent->Fullness, VitalityComponent->DefaultFullness);
-	}
-
+	// Bind health changed handler for this character
 	VitalityComponent->OnHealthChanged.AddDynamic(this, &AACharacterClassBase::HandleHealthChanged);
+	
 }
 
 // Called every frame
@@ -88,10 +79,10 @@ void AACharacterClassBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, .0f, FColor::Cyan, FString::Printf(TEXT("Stamina: %s"), *FString::SanitizeFloat(*Stamina)));
-	}
+	// if (GEngine)
+	// {
+	//		GEngine->AddOnScreenDebugMessage(-1, .0f, FColor::Cyan, FString::Printf(TEXT("Stamina: %s"), *FString::SanitizeFloat(*PStamina)));
+	// }
 
 	if (!bIsSprinting && GetCharacterMovement()->IsMovingOnGround())
 	{
@@ -154,7 +145,7 @@ void AACharacterClassBase::MoveRight(float Value)
 void AACharacterClassBase::SprintStart()
 {
 	// TODO get back to normal walk speed when stamina is over!!
-	if (bCanSprint && *Stamina > VitalityComponent->RunningLimit)
+	if (bCanSprint && *PStamina > VitalityComponent->RunningLimit)
 	{
 		bIsSprinting = true;
 		GetCharacterMovement()->MaxWalkSpeed = 1200;
@@ -195,7 +186,7 @@ void AACharacterClassBase::HandleHealthChanged(UUVitalityComponent* HealthComp, 
 
 void AACharacterClassBase::Sprint()
 {
-	if (*Stamina <= 0)
+	if (*PStamina <= 0)
 	{
 		SprintStop();
 		return;
@@ -205,5 +196,7 @@ void AACharacterClassBase::Sprint()
 	{
 		VitalityComponent->AddStamina(-StaminaDrain * GetWorld()->DeltaTimeSeconds);
 	}
+
 }
+
 

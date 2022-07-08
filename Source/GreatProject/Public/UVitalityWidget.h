@@ -8,7 +8,7 @@
 
 class UProgressBar;
 
-UCLASS()
+UCLASS(Abstract)
 class GREATPROJECT_API UUVitalityWidget : public UUserWidget
 {
 	GENERATED_BODY()

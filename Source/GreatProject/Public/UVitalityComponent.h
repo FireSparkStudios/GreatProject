@@ -12,6 +12,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, UUVitali
 											float, HealthDelta, const class UDamageType*, DamageType,
 											class AController*, InstigatedBy, AActor*, DamageCauser);
 
+class UUVitalityWidget;
+class UUVitalityComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GREATPROJECT_API UUVitalityComponent : public UActorComponent
@@ -29,20 +31,35 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	 
 	/*
 	 * Variables
 	 */
 
+	AACharacterClassBase* MyOwner;
+
+	// Widget class to spawn for the heads up display.
+	UPROPERTY(Category = "Component HUD", EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class UUVitalityWidget> VitalityHUDClass;
+
+	UPROPERTY()
+	UUVitalityWidget* VitalityHUD;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vitality")
 	float DefaultHealth;
+
+	// Max fullness
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vitality")
+	float DefaultFullness;
+
+	// characters max stamina
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vitality")
+	float DefaultStamina;
 
 	float Health;
 
-	AACharacterClassBase* MyOwner;
-
-	// characters max stamina
-	UPROPERTY(EditAnywhere, Category = "Vitality|Stamina")
-	float DefaultStamina;
+	// Current fullness
+	float Fullness;
 
 	// characters current stamina
 	float Stamina;
@@ -50,22 +67,15 @@ public:
 	// Limit to able to run againg
 	float RunningLimit;
 
-	UPROPERTY(EditAnywhere, Category = "Vitality|Stamina")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vitality")
 	float RunningLimitPercentage;
 
-	// Call this when you want to regenerate stamina
-	void AddStamina(float Amount);
-
-	// Max fullness
-	float DefaultFullness;
-
-	// Current fullness
-	float Fullness;
-
 	// How rare fullness decrease (seconds)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vitality")
 	float HungerRate;
 
 	// How much fullness decrease by HungerRate
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vitality")
 	float HungerAmount;
 
 	FTimerHandle FullnessTimerHandle;
@@ -79,6 +89,19 @@ public:
 
 	UFUNCTION()
 	void FullnessDecreaseByTime();
+
+	// Call this when you want to regenerate stamina
+	void AddStamina(float Amount);
+
+public:
+
+	void UpdateHealthBarPercentage();
+
+	void UpdateStaminaBarPercentage();
+
+	void UpdateFullnessBarPercentage();
+
+	void UpdateVitalityBarsPercentage();
 
 	/*
 	 * Signatures

@@ -6,7 +6,8 @@
 #include "GameFramework/Character.h"
 #include "ACharacterClassBase.generated.h"
 
-class UUVitalityWidget;
+class USpringArmComponent;
+class UCameraComponent;
 class UUVitalityComponent;
 
 UCLASS()
@@ -19,10 +20,15 @@ class GREATPROJECT_API AACharacterClassBase : public ACharacter
 	 */
 
 	// Spring arm for third person camera.
-	class USpringArmComponent* SpringArm;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	USpringArmComponent* SpringArm;
 
 	// Player's third person camera.
-	class UCameraComponent* ThirdPersonCamera;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UCameraComponent* ThirdPersonCamera;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UUVitalityComponent* VitalityComponent;
 
 public:
 	// Sets default values for this character's properties
@@ -42,9 +48,18 @@ public:
 
 public:
 
-	class UUVitalityComponent* VitalityComponent;
 
-	float* Stamina;
+	float* PHealth;
+
+	float* PDefaultHealth;
+
+	float* PStamina;
+
+	float* PDefaultStamina;
+
+	float* PFullness;
+
+	float* PDefaultFullness;
 
 	// How much stamina drained while running.
 	float StaminaDrain;
@@ -66,16 +81,13 @@ public:
 	*/
 public:
 
-	// Widget class to spawn for the heads up display.
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UUVitalityWidget> VitalityHUDClass;
-
-	UPROPERTY()
-	UUVitalityWidget* VitalityHUD;
+	
 
 	/*
 	 * Functions
 	 */
+
+
 
 protected:
 
