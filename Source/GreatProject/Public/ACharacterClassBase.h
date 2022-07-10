@@ -67,6 +67,8 @@ public:
 	// How much stamina regenerate while character can regenerate.
 	float StaminaRegen;
 
+	float JumpCost;
+
 	// Control character is able to sprint.
 	bool bCanSprint;
 
@@ -87,8 +89,7 @@ public:
 	 * Functions
 	 */
 
-
-
+	
 protected:
 
 	// Called to bind functionality to input

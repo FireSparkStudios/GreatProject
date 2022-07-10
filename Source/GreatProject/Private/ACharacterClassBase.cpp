@@ -60,6 +60,7 @@ AACharacterClassBase::AACharacterClassBase()
 
 	StaminaDrain = 1;
 	StaminaRegen = 2;
+	JumpCost = 1;
 
 }
 
@@ -163,11 +164,14 @@ void AACharacterClassBase::SprintStop()
 
 void AACharacterClassBase::Jump()
 {
-	Super::Jump();
-
-	if (GetCharacterMovement()->IsMovingOnGround())
+	if (*PStamina >= JumpCost)
 	{
-		VitalityComponent->AddStamina(-1);
+		Super::Jump();
+
+		if (GetCharacterMovement()->IsMovingOnGround())
+		{
+			VitalityComponent->AddStamina(-JumpCost);
+		}
 	}
 }
 
@@ -194,7 +198,8 @@ void AACharacterClassBase::Sprint()
 
 	if (bIsSprinting && bCanSprint)
 	{
-		VitalityComponent->AddStamina(-StaminaDrain * GetWorld()->DeltaTimeSeconds);
+		float CharacterSpeedPercentage = GetVelocity().Length() / GetCharacterMovement()->GetMaxSpeed();
+		VitalityComponent->AddStamina(-StaminaDrain * GetWorld()->DeltaTimeSeconds * CharacterSpeedPercentage);
 	}
 
 }
